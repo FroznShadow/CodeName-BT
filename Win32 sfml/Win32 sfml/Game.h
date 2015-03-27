@@ -3,30 +3,39 @@
 #include "sfml.h"
 #include <list>
 #include "GameObject.h"
+#include "World.h"
 
 class Game
 {
 public:
+
 	Game::Game(const sf::Vector2u& render_Dimensions);
 	Game::~Game();
-	void update(const sf::Time& elapsedTime);
-	void draw(sf::RenderWindow& window);
+
+	void M_update(const sf::Time& elapsedTime);
+	void M_draw(sf::RenderWindow& window);
 private:
+
 	typedef std::list<GameObject> GameObjectList;
-	//sf::CircleShape _shape;
-	sf::Texture _texture;
-	GameObject _player;
-	sf::Vector2u render_Dimensions;
-	sf::Vector2f _playerVelocity;
+	sf::Texture P_texture;
+	sf::Vector2u P_render_Dimensions;
+	sf::Vector2f P_player_Velocity;
 
-	void create_Player();
-	void updatePlayerVelocity(const float elapsedTime);
-	void updatePlayerMovement(const float elapsedTime);
-	static float clamp(const float value, const float min, const float max);
-	static float sign(const float value);
+	GameObject P_player;
+	GameObject Enemy;
+	World map;	
+
+	void M_create_World();
+	void M_create_Player();
+	void M_create_Enemy();
+	void M_create_Area();
+	void M_update_Player_Velocity(const float elapsedTime);
+	void M_update_Player_Movement(const float elapsedTime);
+	void M_update_Enemy_Movement(const float elapsedTime);
+	bool M_checkCollision(GameObject P_player, GameObject Target);
+	static float M_clamp(const float value, const float min, const float max);
+	static float M_sign(const float value);
+	
 };
-
-
-
 
 #endif // !GAME_H

@@ -4,77 +4,94 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
-static const float PLAYER_ACCELERATION = 2000.0f;
-static const float PLAYER_DECELERATION = 1000.0f;
-static const float PLAYER_MAX_SPEED = 8000.0f;
+static const float P_PLAYER_ACCELERATION = 2000.0f;
+static const float P_PLAYER_DECELERATION = 1500.0f;
+static const float P_PLAYER_MAX_SPEED = 8000.0f;
 Game::Game(const sf::Vector2u& renderDimensions)
-	: render_Dimensions(renderDimensions)
+	: P_render_Dimensions(renderDimensions)
 
 {
-	const bool result = _texture.loadFromFile("content/texture.png");
+	const bool result = P_texture.loadFromFile("content/texture.png");
 	assert(result);
-	create_Player();
+
+	M_create_Player();
+	M_create_Enemy();
+	M_create_World();
+
 }
 
 Game::~Game()
 {
 }
-void Game::update(const sf::Time& elapsedTime)
+void Game::M_update(const sf::Time& elapsedTime)
 {
-	const float elapsedSeconds = elapsedTime.asSeconds();
-	updatePlayerVelocity(elapsedSeconds);
-	updatePlayerMovement(elapsedSeconds);
+	const float P_elapsedSeconds = elapsedTime.asSeconds();
+	M_update_Player_Velocity(P_elapsedSeconds);
+	M_update_Player_Movement(P_elapsedSeconds);
+	M_update_Enemy_Movement(P_elapsedSeconds);
+	M_checkCollision(P_player, Enemy);
 }
-void Game::draw(sf::RenderWindow& window)
+void Game::M_draw(sf::RenderWindow& window)
 {
 	window.clear(sf::Color(50, 50, 50, 255));
-	_player.draw(window);
+	window.draw(map);
+	P_player.M_draw(window);
+	Enemy.M_draw(window);
+	
 }
-void Game::updatePlayerVelocity(const float elapsedTime)
+void Game::M_update_Player_Velocity(const float elapsedTime)
 {
-	const float acceleration = PLAYER_ACCELERATION * elapsedTime;
+	const float P_acceleration = P_PLAYER_ACCELERATION * elapsedTime;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		_playerVelocity.x -= acceleration;
+		P_player_Velocity.x -= P_acceleration;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		_playerVelocity.x += acceleration;
+		P_player_Velocity.x += P_acceleration;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		_playerVelocity.y -= acceleration;
+		P_player_Velocity.y -= P_acceleration;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		_playerVelocity.y += acceleration;
+		P_player_Velocity.y += P_acceleration;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+		
 
-	_playerVelocity.x = clamp(_playerVelocity.x, -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
-	_playerVelocity.y = clamp(_playerVelocity.y, -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
+	P_player_Velocity.x = M_clamp(P_player_Velocity.x, -P_PLAYER_MAX_SPEED, P_PLAYER_MAX_SPEED);
+	P_player_Velocity.y = M_clamp(P_player_Velocity.y, -P_PLAYER_MAX_SPEED, P_PLAYER_MAX_SPEED);
 }
-void Game::updatePlayerMovement(const float elapsedTime)
+void Game::M_update_Player_Movement(const float elapsedTime)
 {
-	sf::Vector2f position = _player.position();
-	position += _playerVelocity * elapsedTime;
-	if (position.x < 0.0f || position.x > render_Dimensions.x)
-		position.x = _player.position().x;
+	sf::Vector2f position = P_player.M_get_position();
+	position += P_player_Velocity * elapsedTime;
+	if (position.x < 0.0f || position.x > P_render_Dimensions.x)
+		position.x = P_player.M_get_position().x;
 
-	if (position.y < 0.0f || position.y > render_Dimensions.y)
-		position.y = _player.position().y;
+	if (position.y < 0.0f || position.y > P_render_Dimensions.y)
+		position.y = P_player.M_get_position().y;
 
-	_player.setPosition(position);
+	P_player.M_set_Position(position);
 
-	if (_playerVelocity.x != 0.0f)
-		_playerVelocity.x += -sign(_playerVelocity.x) * PLAYER_DECELERATION * elapsedTime;
-	if (_playerVelocity.y != 0.0f)
-		_playerVelocity.y += -sign(_playerVelocity.y) * PLAYER_DECELERATION * elapsedTime;
+	if (P_player_Velocity.x != 0.0f)
+		P_player_Velocity.x += -M_sign(P_player_Velocity.x) * P_PLAYER_DECELERATION * elapsedTime;
+	if (P_player_Velocity.y != 0.0f)
+		P_player_Velocity.y += -M_sign(P_player_Velocity.y) * P_PLAYER_DECELERATION * elapsedTime;
 }
-void Game::create_Player()
+void Game::M_update_Enemy_Movement(const float elapsedTime)
 {
-	_player.setTexture(_texture);
+	sf::Vector2f position = Enemy.M_get_position();
+	Enemy.M_Rotation(1);
+}
+void Game::M_create_Player()
+{
+	P_player.M_set_Texture(P_texture);
 	const sf::IntRect textureRectangle(0, 0, 100, 118);
-	_player.setTextureRectangle(textureRectangle);
-	const sf::Vector2f position(0.5f * render_Dimensions.x, 0.5f * render_Dimensions.y);
-	_player.setPosition(position);
+	P_player.M_set_Texture_Rectangle(textureRectangle);
+	const sf::Vector2f position(0.5f * P_render_Dimensions.x, 0.5f * P_render_Dimensions.y);
+	P_player.M_set_Position(position);
+
 }
-float Game::clamp(const float value, const float min, const float max)
+float Game::M_clamp(const float value, const float min, const float max)
 {
 	if (value < min)
 		return min;
@@ -84,7 +101,44 @@ float Game::clamp(const float value, const float min, const float max)
 		return value;
 }
 
-float Game::sign(const float value)
+float Game::M_sign(const float value)
 {
 	return value / abs(value);
+}
+void Game::M_create_Enemy()
+{
+
+	Enemy.M_set_Texture(P_texture);
+	const sf::IntRect texture_Rectangle(0, 0, 100, 118);
+	Enemy.M_set_Texture_Rectangle(texture_Rectangle);
+	const sf::Vector2f position(0.2f * P_render_Dimensions.x, 0.6f * P_render_Dimensions.y);
+	Enemy.M_set_Position(position);
+}
+
+void Game::M_create_World()
+{
+	const int level[] =
+	{
+		0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 2, 2, 2,
+		1, 1, 1, 3, 3, 3, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+
+	};
+	map.m_load("Tileset.png", sf::Vector2u(200, 200), level, 16, 6);
+		
+		
+}
+bool Game::M_checkCollision(GameObject P_player, GameObject Target)
+{
+	sf::FloatRect PlayerBoundingBox = P_player.M_get_Bounding_Box();
+	sf::FloatRect TargetBoundingBox = Target.M_get_Bounding_Box();
+	if (PlayerBoundingBox.intersects(TargetBoundingBox))
+	{ 
+		std::cout << "Collision!" << std::endl;
+		return true;
+	}
+	return false;
 }

@@ -2,44 +2,64 @@
 
 GameObject::GameObject() {}
 GameObject::GameObject(const sf::Texture& texture)
-	:_sprite(texture)
-{
-	
-	updateOrigin();
+	:P_sprite(texture)
+{	
+	M_update_Origin();
 }
-//sf::CircleShape _shape(40.0f);
 GameObject::~GameObject()
 {
 }
-void GameObject::draw(sf::RenderWindow& window)
+void GameObject::M_draw(sf::RenderWindow& window)
 {
-
-	window.draw(_sprite);
-}
-sf::Vector2f GameObject::position() const
-{
-	return _sprite.getPosition() + _origin;
-}
-void GameObject::setPosition(const sf::Vector2f& value)
-{
-	//_shape.setPosition(100.f, 100.f);
-	_sprite.setPosition(value - _origin);
+	window.draw(P_sprite);
 }
 
-void GameObject::setTexture(const sf::Texture& value)
+//------------//
+// Set Values //
+//------------//
+void GameObject::M_set_Position(const sf::Vector2f& value)
 {
-	_sprite.setTexture(value);
-	updateOrigin();
+	P_sprite.setPosition(value - P_origin);
+}
+void GameObject::M_set_Texture(const sf::Texture& value)
+{
+	P_sprite.setTexture(value);
+	M_update_Origin();
+}
+void GameObject::M_set_Texture_Rectangle(const sf::IntRect& value)
+{
+	P_sprite.setTextureRect(value);
+	P_origin.x = 0.5f * value.width;
+	P_origin.y = 0.5f * value.height;
+}
+void GameObject::M_set_Rotation(float value)
+{
+	P_sprite.setRotation(value);
 }
 
-void GameObject::setTextureRectangle(const sf::IntRect& value)
+//------------//
+// Get Values //
+//------------//
+sf::Vector2f GameObject::M_get_position() const
 {
-	_sprite.setTextureRect(value);
-	_origin.x = 0.5f * value.width;
-	_origin.y = 0.5f * value.height;
+	return P_sprite.getPosition() + P_origin;
 }
-void GameObject::updateOrigin()
+float GameObject::M_get_Rotation() const
 {
-	_origin.x = 0.5f * _sprite.getTexture()->getSize().x;
-	_origin.y = 0.5f * _sprite.getTexture()->getSize().y;
+	return P_sprite.getRotation();
 }
+sf::FloatRect GameObject::M_get_Bounding_Box() const
+{
+	return P_sprite.getGlobalBounds();
+}
+
+void GameObject::M_update_Origin()
+{
+	P_origin.x = 0.5f * P_sprite.getTexture()->getSize().x;
+	P_origin.y = 0.5f * P_sprite.getTexture()->getSize().y;
+}
+void GameObject::M_Rotation(float value)
+{
+	P_sprite.rotate(value);
+}
+

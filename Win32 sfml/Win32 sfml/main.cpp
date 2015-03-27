@@ -11,9 +11,7 @@ int main()
 	{
 		RenderWindow window(VideoMode(1920, 1200), "SFML works!");
 		loop(window);
-
-		return 0;
-		
+		return 0;	
 	}
 }
 static void loop(RenderWindow& window)
@@ -32,10 +30,18 @@ static void loop(RenderWindow& window)
 		{
 			if (event.type == Event::Closed)
 				window.close();
+			if (event.type ==Event::KeyPressed)
+				switch (event.key.code)
+			{
+				case Keyboard::Escape:
+					window.close();
+					break;
+			}
+				
 		}
 
-		game.update(elapsed_Time);
-		game.draw(window);
+		game.M_update(elapsed_Time);
+		game.M_draw(window);
 		window.display();
 	}
 }
