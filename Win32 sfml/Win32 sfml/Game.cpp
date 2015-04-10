@@ -7,11 +7,15 @@
 static const float P_PLAYER_ACCELERATION = 2000.0f;
 static const float P_PLAYER_DECELERATION = 1500.0f;
 static const float P_PLAYER_MAX_SPEED = 8000.0f;
+static const float P_ENEMY_ACCELERATION = 1700.0f;
+static const float P_ENEMY_DECELERATION = 1000.0f;
+static const float P_ENEMY_MAX_SPEED = 5000.0f;
 Game::Game(const sf::Vector2u& renderDimensions)
 	: P_render_Dimensions(renderDimensions)
 
 {
 	const bool result = P_texture.loadFromFile("content/texture.png");
+
 	assert(result);
 
 	M_create_Player();
@@ -23,12 +27,15 @@ Game::Game(const sf::Vector2u& renderDimensions)
 Game::~Game()
 {
 }
-void Game::M_update(const sf::Time& elapsedTime)
+void Game::M_update(const sf::Time& elapsedTime, const sf::RenderWindow& window)
 {
 	const float P_elapsedSeconds = elapsedTime.asSeconds();
 	M_update_Player_Velocity(P_elapsedSeconds);
 	M_update_Player_Movement(P_elapsedSeconds);
+	M_update_Player_Rotation(window);
+	M_update_Enemy_Velocity(P_elapsedSeconds);
 	M_update_Enemy_Movement(P_elapsedSeconds);
+	M_update_Hit_Confirmation();
 	M_checkCollision(P_player, Enemy);
 }
 void Game::M_draw(sf::RenderWindow& window)
@@ -77,10 +84,81 @@ void Game::M_update_Player_Movement(const float elapsedTime)
 	if (P_player_Velocity.y != 0.0f)
 		P_player_Velocity.y += -M_sign(P_player_Velocity.y) * P_PLAYER_DECELERATION * elapsedTime;
 }
+void Game::M_update_Player_Rotation(const sf::RenderWindow& window)
+{
+	//float rotation = P_player.M_get_Rotation();
+	sf::Vector2f player_Position = P_player.M_get_position();
+	sf::Vector2i mouse_Position = sf::Mouse::getPosition(window);
+	float x_distance = player_Position.x - (float)mouse_Position.x;
+	float y_distance = player_Position.y - (float)mouse_Position.y;
+	float angle = (atan2(((float)mouse_Position.y - player_Position.y), ((float)mouse_Position.x - player_Position.x)) * 180 / M_PI);
+	if (angle < 0)	angle += 360;
+	P_player.M_set_Rotation(angle);
+}
+void Game::M_update_Hit_Confirmation() // Want hit range as variable?
+{
+	bool mouse_Pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+	float player_Rotation = P_player.M_get_Rotation();
+	float enemy_Rotation = Enemy.M_get_Rotation();
+	sf::Vector2f player_Position = P_player.M_get_position();
+	sf::Vector2f enemy_Position = Enemy.M_get_position();
+	float x_distance = player_Position.x - enemy_Position.x;
+	float y_distance = player_Position.y - enemy_Position.y;
+	float angle = (atan2((y_distance), x_distance) * 180 / M_PI);
+	if (angle < 0)	angle += 360;
+	if (mouse_Pressed == true)
+		//M_hit();
+	if ((player_Rotation - angle < 20 && player_Rotation - angle > -20) && M_checkCollision(P_player, Enemy) == true && mouse_Pressed == true)
+		std::cout << "Player hit Enemy: " << std::endl;
+
+}
+void Game::M_update_Enemy_Velocity(const float elapsedTime)
+{
+	sf::Vector2f current_Position = Enemy.M_get_position();
+	sf::Vector2f target_Position = P_player.M_get_position();
+	float x_distance = current_Position.x - target_Position.x;
+	float y_distance = current_Position.y - target_Position.y;
+	float angle = (atan2((target_Position.y - current_Position.y), (target_Position.x - current_Position.x)) * 180 / M_PI);
+	if (angle < 0)	angle += 360;
+	Enemy.M_set_Rotation(angle);
+	const float P_acceleration = P_ENEMY_ACCELERATION * elapsedTime;
+
+	if (x_distance > 80)
+		P_enemy_Velocity.x -= P_acceleration;
+
+	if (x_distance < 80)
+		P_enemy_Velocity.x += P_acceleration;
+
+	if (y_distance < 80)
+		P_enemy_Velocity.y += P_acceleration;
+
+	if (y_distance > 80)
+		P_enemy_Velocity.y -= P_acceleration;
+	
+
+
+		P_player_Velocity.x = M_clamp(P_player_Velocity.x, -P_ENEMY_MAX_SPEED, P_ENEMY_MAX_SPEED);
+	P_player_Velocity.y = M_clamp(P_player_Velocity.y, -P_ENEMY_MAX_SPEED, P_ENEMY_MAX_SPEED);
+}
 void Game::M_update_Enemy_Movement(const float elapsedTime)
 {
-	sf::Vector2f position = Enemy.M_get_position();
-	Enemy.M_Rotation(1);
+	
+		sf::Vector2f position = Enemy.M_get_position();
+		position += P_enemy_Velocity * elapsedTime;
+		if (position.x < 0.0f || position.x > P_render_Dimensions.x)
+			position.x = Enemy.M_get_position().x;
+
+		if (position.y < 0.0f || position.y > P_render_Dimensions.y)
+			position.y = Enemy.M_get_position().y;
+
+		Enemy.M_set_Position(position);
+
+		if (P_enemy_Velocity.x != 0.0f)
+			P_enemy_Velocity.x += -M_sign(P_enemy_Velocity.x) * P_PLAYER_DECELERATION * elapsedTime;
+		if (P_enemy_Velocity.y != 0.0f)
+			P_enemy_Velocity.y += -M_sign(P_enemy_Velocity.y) * P_PLAYER_DECELERATION * elapsedTime;
+
+	
 }
 void Game::M_create_Player()
 {
@@ -107,11 +185,10 @@ float Game::M_sign(const float value)
 }
 void Game::M_create_Enemy()
 {
-
-	Enemy.M_set_Texture(P_texture);
 	const sf::IntRect texture_Rectangle(0, 0, 100, 118);
-	Enemy.M_set_Texture_Rectangle(texture_Rectangle);
 	const sf::Vector2f position(0.2f * P_render_Dimensions.x, 0.6f * P_render_Dimensions.y);
+	Enemy.M_set_Texture(P_texture);
+	Enemy.M_set_Texture_Rectangle(texture_Rectangle);
 	Enemy.M_set_Position(position);
 }
 
@@ -137,7 +214,7 @@ bool Game::M_checkCollision(GameObject P_player, GameObject Target)
 	sf::FloatRect TargetBoundingBox = Target.M_get_Bounding_Box();
 	if (PlayerBoundingBox.intersects(TargetBoundingBox))
 	{ 
-		std::cout << "Collision!" << std::endl;
+		//std::cout << "Collision!" << std::endl;
 		return true;
 	}
 	return false;

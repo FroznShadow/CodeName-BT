@@ -24,17 +24,36 @@ void GameObject::M_set_Position(const sf::Vector2f& value)
 void GameObject::M_set_Texture(const sf::Texture& value)
 {
 	P_sprite.setTexture(value);
-	M_update_Origin();
+
 }
 void GameObject::M_set_Texture_Rectangle(const sf::IntRect& value)
 {
 	P_sprite.setTextureRect(value);
 	P_origin.x = 0.5f * value.width;
 	P_origin.y = 0.5f * value.height;
+	P_sprite.setOrigin(P_origin);
 }
 void GameObject::M_set_Rotation(float value)
 {
-	P_sprite.setRotation(value);
+	float erotus = (value - this->M_get_Rotation());
+	if (erotus < 0)
+		erotus += 360;
+	if (erotus > 0 && erotus < 180)
+	{
+		if (erotus >35 && erotus < 145)
+			P_sprite.rotate(0.2);
+			P_sprite.rotate(0.1);
+	}
+	
+	else if (erotus < 359 && erotus > 180)
+	{
+		if (erotus >215 && erotus < 325)
+			P_sprite.rotate(-0.2);
+			P_sprite.rotate(-0.1);
+	}
+		
+
+
 }
 
 //------------//

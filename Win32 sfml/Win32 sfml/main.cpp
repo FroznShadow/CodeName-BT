@@ -40,7 +40,7 @@ static void loop(RenderWindow& window)
 				
 		}
 
-		game.M_update(elapsed_Time);
+		game.M_update(elapsed_Time, window);
 		game.M_draw(window);
 		window.display();
 	}
