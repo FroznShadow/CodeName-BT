@@ -1,17 +1,26 @@
 #include "GameObject.h"
 
-GameObject::GameObject() {}
+GameObject::GameObject() { }
 GameObject::GameObject(const sf::Texture& texture)
 	:P_sprite(texture)
 {	
+
 	M_update_Origin();
+	
 }
 GameObject::~GameObject()
 {
+
 }
 void GameObject::M_draw(sf::RenderWindow& window)
 {
 	window.draw(P_sprite);
+}
+void GameObject::M_hit(float Damage)
+{
+	Hit_Points -= Damage;
+
+	
 }
 
 //------------//
@@ -55,6 +64,10 @@ void GameObject::M_set_Rotation(float value)
 
 
 }
+void GameObject::M_set_Hit_Points()
+{
+	Hit_Points = 100;
+}
 
 //------------//
 // Get Values //
@@ -81,4 +94,11 @@ void GameObject::M_Rotation(float value)
 {
 	P_sprite.rotate(value);
 }
-
+float GameObject::M_get_Hit_Points()
+{
+	return Hit_Points;
+}
+void GameObject::M_Destroy()
+{
+	delete this;
+}

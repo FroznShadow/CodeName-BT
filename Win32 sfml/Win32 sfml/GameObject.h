@@ -13,6 +13,8 @@ public:
 	explicit GameObject(const sf::Texture& texture);
 	~GameObject();
 	void M_draw(sf::RenderWindow& window);
+	void M_hit(float Damage);
+
 
 
 	//------------//
@@ -22,7 +24,7 @@ public:
 	void M_set_Texture(const sf::Texture& value);
 	void M_set_Texture_Rectangle(const sf::IntRect& value);
 	void M_set_Rotation(float value);
-	void M_set_Hit_Points(float value); // NOT READY
+	void M_set_Hit_Points(); // NOT READY
 	
 
 	//------------//
@@ -31,16 +33,18 @@ public:
 	sf::Vector2f M_get_position() const;
 	float M_get_Rotation() const;
 	sf::FloatRect M_get_Bounding_Box() const;
+	float M_get_Hit_Points();
 	
 	//  //
 	void M_Rotation(float value);
-
+	void M_Destroy();
 protected:
 
 	sf::Sprite P_sprite;
 	sf::Vector2f P_origin;
 	float Hit_Points; // NOT READY
 	void M_update_Origin();
+	
 
 };
 
