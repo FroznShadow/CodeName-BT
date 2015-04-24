@@ -21,6 +21,7 @@ private:
 	sf::Vector2u P_render_Dimensions;
 	sf::Vector2f P_player_Velocity;
 	sf::Vector2f P_enemy_Velocity;
+	sf::View view1;
 	bool is_Enemy_Active;
 
 	GameObject P_player;
@@ -42,6 +43,7 @@ private:
 	static float M_clamp(const float value, const float min, const float max);
 	static float M_sign(const float value);
 	void M_destroy_Enemy(GameObject *Target);
+	void M_spawn_Enemy(float x_position, float y_position);
 	
 };
 

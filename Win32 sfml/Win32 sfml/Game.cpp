@@ -21,6 +21,9 @@ Game::Game(const sf::Vector2u& renderDimensions)
 	M_create_Player();
 	M_create_Enemy(Enemy);
 	M_create_World();
+	view1.setSize(sf::Vector2f(1000,2000));
+	//view1.setCenter(sf::Vector2f(350, 300));
+	
 
 }
 
@@ -29,8 +32,8 @@ Game::~Game()
 }
 void Game::M_update(const sf::Time& elapsedTime, const sf::RenderWindow& window)
 {
+	view1.setCenter(P_player.M_get_position());
 	const float P_elapsedSeconds = elapsedTime.asSeconds();
-	
 	M_update_Player_Velocity(P_elapsedSeconds);
 	M_update_Player_Movement(P_elapsedSeconds);
 	M_update_Player_Rotation(window);
@@ -39,14 +42,19 @@ void Game::M_update(const sf::Time& elapsedTime, const sf::RenderWindow& window)
 		M_update_Enemy_Movement(P_elapsedSeconds, Enemy);
 		M_checkCollision(P_player, Enemy);
 		M_update_Hit_Confirmation(Enemy);
+		
 
 	}
-	
+
+	if (is_Enemy_Active == false)
+		M_spawn_Enemy(0.4f, 0.5f);
+		
 }
 void Game::M_draw(sf::RenderWindow& window)
 {
 	window.clear(sf::Color(50, 50, 50, 255));
 	window.draw(map);
+	window.setView(view1);
 	P_player.M_draw(window);
 	if (is_Enemy_Active)
 	{
@@ -250,4 +258,14 @@ void Game::M_destroy_Enemy(GameObject *Target)
 {
 	is_Enemy_Active = false;
 	Target->M_Destroy();
+}
+void Game::M_spawn_Enemy(float x_position, float y_position)
+{
+	GameObject *Enemy = new GameObject();
+	const sf::IntRect texture_Rectangle(0, 0, 100, 118);
+	const sf::Vector2f position(x_position * P_render_Dimensions.x, y_position * P_render_Dimensions.y);
+	Enemy->M_set_Texture(P_texture);
+	Enemy->M_set_Texture_Rectangle(texture_Rectangle);
+	Enemy->M_set_Position(position);
+	is_Enemy_Active = true;
 }

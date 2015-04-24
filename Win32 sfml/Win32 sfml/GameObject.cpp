@@ -6,7 +6,6 @@ GameObject::GameObject(const sf::Texture& texture)
 {	
 
 	M_update_Origin();
-	
 }
 GameObject::~GameObject()
 {
