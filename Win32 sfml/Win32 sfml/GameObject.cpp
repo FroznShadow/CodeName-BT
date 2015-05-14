@@ -4,7 +4,9 @@ GameObject::GameObject() { }
 GameObject::GameObject(const sf::Texture& texture)
 	:P_sprite(texture)
 {	
+	
 
+	
 	M_update_Origin();
 }
 GameObject::~GameObject()
@@ -13,14 +15,14 @@ GameObject::~GameObject()
 }
 void GameObject::M_draw(sf::RenderWindow& window)
 {
+
 	window.draw(P_sprite);
 }
 void GameObject::M_hit(float Damage)
 {
 	Hit_Points -= Damage;
-
-	
 }
+
 
 //------------//
 // Set Values //
@@ -32,7 +34,6 @@ void GameObject::M_set_Position(const sf::Vector2f& value)
 void GameObject::M_set_Texture(const sf::Texture& value)
 {
 	P_sprite.setTexture(value);
-
 }
 void GameObject::M_set_Texture_Rectangle(const sf::IntRect& value)
 {
@@ -59,13 +60,18 @@ void GameObject::M_set_Rotation(float value)
 			P_sprite.rotate(-0.2);
 			P_sprite.rotate(-0.1);
 	}
-		
-
-
 }
 void GameObject::M_set_Hit_Points()
 {
 	Hit_Points = 100;
+}
+void GameObject::M_set_lives(int lives)
+{
+	lives = 3;
+}
+void GameObject::M_set_Damage(float Value)
+{
+	Damage = Value;
 }
 
 //------------//
@@ -83,7 +89,18 @@ sf::FloatRect GameObject::M_get_Bounding_Box() const
 {
 	return P_sprite.getGlobalBounds();
 }
-
+float GameObject::M_get_Damage()
+{
+	return Damage;
+}
+int GameObject::M_get_Lives()
+{
+	return lives;
+}
+float GameObject::M_get_Hit_Points()
+{
+	return Hit_Points;
+}
 void GameObject::M_update_Origin()
 {
 	P_origin.x = 0.5f * P_sprite.getTexture()->getSize().x;
@@ -93,10 +110,7 @@ void GameObject::M_Rotation(float value)
 {
 	P_sprite.rotate(value);
 }
-float GameObject::M_get_Hit_Points()
-{
-	return Hit_Points;
-}
+
 void GameObject::M_Destroy()
 {
 	delete this;

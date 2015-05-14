@@ -10,6 +10,7 @@ int main()
 	// Luodaan ikkuna pelille
 	{
 		RenderWindow window(VideoMode(1920, 1200), "SFML works!");
+	
 		loop(window);
 		return 0;	
 	}
